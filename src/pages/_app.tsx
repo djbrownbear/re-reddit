@@ -4,6 +4,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { Open_Sans } from "next/font/google";
 import { theme } from "@/chakra/theme";
 import Layout from "@/components/Layout/Layout";
+import { RecoilRoot } from "recoil";
 
 const openSans = Open_Sans({ subsets: ["latin"] });
 
@@ -17,11 +18,13 @@ export default function App({ Component, pageProps }: AppProps) {
           }
         `}
       </style>
-      <ChakraProvider theme={theme}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </ChakraProvider>
+      <RecoilRoot>
+        <ChakraProvider theme={theme}>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </ChakraProvider>
+      </RecoilRoot>
     </>
   );
 }
