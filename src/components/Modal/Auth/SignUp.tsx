@@ -2,6 +2,8 @@ import { authModalState } from "@/atoms/authModalAtom";
 import { Input, Button, Flex, Text } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useSetRecoilState } from "recoil";
+import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks";
+import { auth } from "@/firebase/clientApp";
 
 const SignUp: React.FC = () => {
   const setAuthModalState = useSetRecoilState(authModalState);
@@ -10,9 +12,23 @@ const SignUp: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState("")
+  const [
+    createUserWithEmailAndPassword,
+    user,
+    loading,
+    userError,
+  ] = useCreateUserWithEmailAndPassword(auth);
 
   //Firebase logic
-  const onSubmit = () => {};
+  const onSubmit = () => {
+    if (signUpForm.password !== signUpForm.confirmPassword) {
+      setError("Passwords do not match");
+    }
+    
+    // passwords match
+    createUserWithEmailAndPassword(signUpForm.email, signUpForm.password);    
+  };
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // update form state
