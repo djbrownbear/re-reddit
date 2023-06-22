@@ -31,5 +31,13 @@ export const Button: ComponentStyleConfig= {
       border: "1px solid",
       borderColor: "blue.500",
     },
+    oauth: {
+      height: "34px",
+      border: "1px solid",
+      borderColor: "gray.300",
+      _hover: {
+        bg: "gray.50",
+      },
+    },
   },
 };
