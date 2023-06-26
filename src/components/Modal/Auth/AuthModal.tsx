@@ -1,11 +1,21 @@
-import { authModalState } from '@/atoms/authModalAtom';
-import { Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useDisclosure, Text } from '@chakra-ui/react';
-import React, { useEffect } from 'react';
+import { authModalState } from "@/atoms/authModalAtom";
+import {
+  Flex,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
+  Text,
+} from "@chakra-ui/react";
+import React, { useEffect } from "react";
 import { useRecoilState } from "recoil";
-import AuthInputs from './AuthInputs';
-import OAuthButtons from './OAuthButtons';
+import AuthInputs from "./AuthInputs";
+import OAuthButtons from "./OAuthButtons";
 import { auth } from "@/firebase/clientApp";
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const AuthModal: React.FC = () => {
   const [modalState, setModalState] = useRecoilState(authModalState);
@@ -22,20 +32,28 @@ const AuthModal: React.FC = () => {
   useEffect(() => {
     if (user) handleClose();
   }, [user]);
-  
+
   return (
     <>
-
       <Modal isOpen={modalState.open} onClose={handleClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader display="flex" flexDirection="column" alignItems="center">
+          <ModalHeader
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+          >
             {modalState.view === "login" && "Login"}
             {modalState.view === "signup" && "Sign Up"}
             {modalState.view === "resetPassword" && "Reset Password"}
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+          <ModalBody
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+          >
             <Flex
               direction="column"
               align="center"
@@ -43,7 +61,9 @@ const AuthModal: React.FC = () => {
               width="70%"
             >
               <OAuthButtons />
-              <Text color="gray.400" fontWeight={700}>OR</Text>
+              <Text color="gray.400" fontWeight={700}>
+                OR
+              </Text>
               <AuthInputs />
               {/* <ResetPassword /> */}
             </Flex>
@@ -51,7 +71,7 @@ const AuthModal: React.FC = () => {
         </ModalContent>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default AuthModal;
