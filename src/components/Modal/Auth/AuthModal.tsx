@@ -61,7 +61,7 @@ const AuthModal: React.FC = () => {
               justify="center"
               width="70%"
             >
-              {modalState.view === "login" || modalState === "signup" ? (
+              {modalState.view === "login" || modalState.view === "signup" ? (
                 <>
                   <OAuthButtons />
                   <Text color="gray.400" fontWeight={700}>

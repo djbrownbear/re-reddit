@@ -39,7 +39,7 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <form>
+    <form onSubmit={onSubmit}>
       <Input
         required
         name="email"

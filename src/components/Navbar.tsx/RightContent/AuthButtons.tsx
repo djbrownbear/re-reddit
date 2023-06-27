@@ -23,7 +23,7 @@ const AuthButtons: React.FC = () => {
         mr={1}
         onClick={() => setAuthModalState({ open: true, view: "signup" })}
       >
-        Sign Out
+        Sign Up
       </Button>
     </>
   );
