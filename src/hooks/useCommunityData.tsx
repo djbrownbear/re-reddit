@@ -30,7 +30,7 @@ const useCommunityData: React.FC = () => {
   ) => {
     if (!user) {
       // open modal
-      setAuthModalState({ open: true, view: "login" })
+      setAuthModalState({ open: true, view: "login" });
     }
 
     if (isJoined) {
@@ -60,28 +60,28 @@ const useCommunityData: React.FC = () => {
     setLoading(false);
   };
 
-  const joinCommunity = (communityData: Community) => {
+  const joinCommunity = async (communityData: Community) => {
     // batch write
     try {
       const batch = writeBatch(firestore);
-      
+
       const newSnippet: CommunitySnippet = {
         communityId: communityData.id,
         imageURL: communityData.imageURL || "",
       };
-      
+
       // creating a new community snippet
       batch.set(
         doc(
           firestore,
           `users/${user?.uid}/communitySnippets`,
           communityData.id
-          ),
-          communityData.id
-          );
-          
-          // updating the numberOfMembers
-          batch.update(doc(firestore, "communities", communityData.id), {
+        ),
+        newSnippet
+      );
+
+      // updating the numberOfMembers
+      batch.update(doc(firestore, "communities", communityData.id), {
         numberOfMembers: increment(1),
       });
 
@@ -99,31 +99,36 @@ const useCommunityData: React.FC = () => {
     setLoading(false);
   };
 
-  const leaveCommunity = (communityId: string) => {
+  const leaveCommunity = async (communityId: string) => {
     // batch write
-    
+
     try {
       const batch = writeBatch(firestore);
-      
+
       // deleting the community snippet from user
       batch.delete(
         doc(firestore, `users/${user?.uid}/communitySnippets`, communityId)
-        );
-        
-        // updating the numberOfMembers (-1)
-        batch.update(doc(firestore, "communities", communityId), {
+      );
+
+      // updating the numberOfMembers (-1)
+      batch.update(doc(firestore, "communities", communityId), {
         numberOfMembers: increment(-1),
       });
+
+      await batch.commit();
 
       // update recoil state - communityState.mySnippets
       setCommunityStateValue((prev) => ({
         ...prev,
-        MySnippets: prev.mySnippets.filter(item => item.communityId !== communityId),
+        MySnippets: prev.mySnippets.filter(
+          (item) => item.communityId !== communityId
+        ),
       }));
     } catch (error: any) {
       console.log("leaveCommunity error", error);
       setError(error.message);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
