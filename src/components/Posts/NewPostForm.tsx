@@ -4,10 +4,11 @@ import { BsLink45Deg, BsMic } from "react-icons/bs";
 import { IoDocumentText, IoImageOutline } from "react-icons/io5";
 import { BiPoll } from "react-icons/bi";
 import TabItem from "./TabItem";
+import TextInputs from "./PostForm/TextInputs";
 
 type NewPostFormProps = {};
 
-const formTabs = [
+const formTabs: TabItem[] = [
   {
     title: "Post",
     icon: IoDocumentText,
@@ -37,15 +38,49 @@ export type TabItem = {
 
 const NewPostForm: React.FC<NewPostFormProps> = () => {
   const [selectedTab, setSelectedTab] = useState(formTabs[0].title);
-  
+  const [textInputs, setTextInputs] = useState({
+    title: "",
+    body: "",
+  });
+  const [selectedFile, setSelectedFile] = useState<string>();
+  const [loading, setLoading] = useState(false);
+
+  const handleCreatePost = async () => {};
+
+  const onSelectImage = () => {};
+
+  const onTextChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { target: { name, value} } = event;
+    setTextInputs((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   return (
     <Flex direction="column" bg="white" borderRadius={4} mt={2}>
       <Flex width="100%">
         {formTabs.map((item) => (
           <>
-            <TabItem item={item} selected={item.title === selectedTab} setSelectedTab={setSelectedTab}/>
+            <TabItem
+              item={item}
+              selected={item.title === selectedTab}
+              setSelectedTab={setSelectedTab}
+            />
           </>
         ))}
+      </Flex>
+      <Flex p={4}>
+        {selectedTab === "Post" && (
+          <TextInputs
+            textInputs={textInputs}
+            handleCreatePost={handleCreatePost}
+            onChange={onTextChange}
+            loading={loading}
+          />
+        )}
       </Flex>
     </Flex>
   );

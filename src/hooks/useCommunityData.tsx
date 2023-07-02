@@ -16,7 +16,7 @@ import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
-const useCommunityData: React.FC = () => {
+const useCommunityData = () => {
   const [user] = useAuthState(auth);
   const [communityStateValue, setCommunityStateValue] =
     useRecoilState(communityState);
@@ -90,7 +90,7 @@ const useCommunityData: React.FC = () => {
       // update recoil state - communityState.mySnippets
       setCommunityStateValue((prev) => ({
         ...prev,
-        MySnippets: [...prev.mySnippets, newSnippet],
+        mySnippets: [...prev.mySnippets, newSnippet],
       }));
     } catch (error: any) {
       console.log("joinCommunity error", error);
@@ -120,7 +120,7 @@ const useCommunityData: React.FC = () => {
       // update recoil state - communityState.mySnippets
       setCommunityStateValue((prev) => ({
         ...prev,
-        MySnippets: prev.mySnippets.filter(
+        mySnippets: prev.mySnippets.filter(
           (item) => item.communityId !== communityId
         ),
       }));
