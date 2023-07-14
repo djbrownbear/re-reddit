@@ -67,7 +67,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           : "",
       },
     };
-  } catch (error) {
+  } catch (error: any) {
     // todo: add error page here
     console.log("getServerSideProps error", error);
   }
