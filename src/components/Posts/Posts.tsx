@@ -1,5 +1,5 @@
 import { Community } from "@/atoms/communitiesAtom";
-import { Post } from "@/atoms/postsAtom";
+import { Post, PostVote } from "@/atoms/postsAtom";
 import { auth, firestore } from "@/firebase/clientApp";
 import usePosts from "@/hooks/usePosts";
 import { query, collection, where, orderBy, getDocs } from "firebase/firestore";
@@ -55,23 +55,25 @@ const Posts: React.FC<PostsProps> = ({ communityData }) => {
 
   return (
     <>
-    { loading ? (
-      <PostLoader />
-    ) : (
-    <Stack>
-      {postStateValue.posts.map((item) => (
-        <PostItem
-          key={item.id}
-          post={item}
-          userIsCreator={user?.uid === item.creatorId}
-          userVoteValue={undefined}
-          onVote={onVote}
-          onDeletePost={onDeletePost}
-          onSelectPost={onSelectPost}
-        />
-      ))}
-    </Stack>)
-  }
+      {loading ? (
+        <PostLoader />
+      ) : (
+        <Stack>
+          {postStateValue.posts.map((item) => (
+            <PostItem
+              key={item.id}
+              post={item}
+              userIsCreator={user?.uid === item.creatorId}
+              userVoteValue={
+                postStateValue?.postVotes.find((vote: PostVote) => vote.postId === item.id)?.voteValue
+              }
+              onVote={onVote}
+              onDeletePost={onDeletePost}
+              onSelectPost={onSelectPost}
+            />
+          ))}
+        </Stack>
+      )}
     </>
   );
 };
