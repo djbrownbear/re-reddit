@@ -19,9 +19,14 @@ const usePosts = () => {
   const [user] = useAuthState(auth);
   const [postStateValue, setPostStateValue] = useRecoilState(postState);
   const currentCommunity = useRecoilValue(communityState).currentCommunity;
+  const setAuthModalState = useStateRecoilState(authModalState);
 
   const onVote = async (post: Post, vote: number, communityId: string) => {
-    // check for a user => if not, open auth modal
+    // check for a user. if no user => open auth modal
+    if (!user?.uid) {
+      setAuthModalState({ open: true, view: "login" });
+      return;
+    }
 
     try {
       const { voteStatus } = post;
@@ -165,6 +170,16 @@ const usePosts = () => {
     if (!user || !currentCommunity?.id) return;
     getCommunityPostVotes(currentCommunity?.id);
   }, [user, currentCommunity]);
+
+  useEffect(() => {
+    if (!user) {
+      // clear user post votes
+      setPostStateValue((prev) => ({
+        ...prev,
+        postVotes: [],
+      }));
+    }
+  }, [user]);
 
   return {
     postStateValue,
