@@ -10,14 +10,19 @@ import { useAuthState } from "react-firebase-hooks/auth";
 const SubmitPostPage: React.FC = () => {
   const [user] = useAuthState(auth);
   const { communityStateValue } = useCommunityData();
-  
+
   return (
     <PageContent>
       <>
         <Box p="14px 0px" borderBottom="1px solid" borderColor="white">
           <Text>Create a post</Text>
         </Box>
-        {user && <NewPostForm user={user} />}
+        {user && (
+          <NewPostForm
+            user={user}
+            communityImageURL={communityStateValue.currentCommunity?.imageURL}
+          />
+        )}
       </>
       <>
         {communityStateValue.currentCommunity && (
