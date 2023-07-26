@@ -1,6 +1,7 @@
 import { communityState } from "@/atoms/communitiesAtom";
 import {
   DirectoryMenuItem,
+  defaultMenuItem,
   directoryMenuState,
 } from "@/atoms/directoryMenuAtom";
 import { useRouter } from "next/router";
@@ -15,11 +16,12 @@ const useDirectory = () => {
   const communityStateValue = useRecoilValue(communityState);
 
   const onSelectMenuItem = (menuItem: DirectoryMenuItem) => {
+    console.log("onSelectMenuItem", menuItem, directoryState)
     setDirectoryState((prev) => ({
       ...prev,
       selectedMenuItem: menuItem,
     }));
-    router.push(menuItem.link);
+    router?.push(menuItem.link);
     if (directoryState.isOpen) {
       toggleMenuOpen();
     }
@@ -46,6 +48,7 @@ const useDirectory = () => {
           iconColor: "blue.500",
         },
       }));
+      return;
     }
   }, [communityStateValue.currentCommunity]);
 

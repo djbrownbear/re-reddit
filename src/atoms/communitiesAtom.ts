@@ -18,7 +18,7 @@ export interface CommunitySnippet {
 
 interface CommunityState {
   mySnippets: CommunitySnippet[];
-  currentCommunity?: Community;
+  currentCommunity: Community;
   snippetsFetched: boolean;
 }
 
@@ -29,7 +29,7 @@ export const defaultCommunity: Community = {
   privacyType: "public",
 }
 
-const defaultCommunityState: CommunityState = {
+export const defaultCommunityState: CommunityState = {
   mySnippets: [],
   currentCommunity: defaultCommunity,
   snippetsFetched: false,
