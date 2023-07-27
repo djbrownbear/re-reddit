@@ -31,7 +31,7 @@ type PostItemProps = {
   userIsCreator: boolean;
   userVoteValue?: number;
   onVote: (
-    event: React.MouseEvent<SVGAElement, MouseEvent>,
+    event: React.MouseEvent<SVGElement, MouseEvent>,
     post: Post,
     vote: number,
     communityId: string

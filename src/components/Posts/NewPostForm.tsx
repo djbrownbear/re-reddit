@@ -17,7 +17,7 @@ import { BsLink45Deg, BsMic } from "react-icons/bs";
 import { IoDocumentText, IoImageOutline } from "react-icons/io5";
 import ImageUpload from "./PostForm/ImageUpload";
 import TextInputs from "./PostForm/TextInputs";
-import TabItem from "./TabItem";
+import TabItemContainer from "./TabItem";
 import useSelectFile from "@/hooks/useSelectFile";
 
 type NewPostFormProps = {
@@ -25,7 +25,7 @@ type NewPostFormProps = {
   communityImageURL?: string;
 };
 
-const formTabs: TabItem[] = [
+const formTabs = [
   {
     title: "Post",
     icon: IoDocumentText,
@@ -126,7 +126,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({
       <Flex width="100%">
         {formTabs.map((item) => (
           <>
-            <TabItem
+            <TabItemContainer
               key={item.title}
               item={item}
               selected={item.title === selectedTab}
