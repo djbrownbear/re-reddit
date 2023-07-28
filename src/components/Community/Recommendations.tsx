@@ -109,7 +109,7 @@ const Recommendations: React.FC = () => {
                           <Image
                             src={item.imageURL}
                             borderRadius="full"
-                            boxSize="28pt"
+                            boxSize="24pt"
                             mr={2}
                             alt={`${item.id}`}
                           />
@@ -138,7 +138,7 @@ const Recommendations: React.FC = () => {
                         fontSize="8pt"
                         variant={isJoined ? "outline" : "solid"}
                         onClick={(event) => {
-                          event.stopPropagation();
+                          event.preventDefault();
                           onJoinOrLeaveCommunity(item, isJoined);
                         }}
                       >

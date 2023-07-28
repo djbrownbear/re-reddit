@@ -34,6 +34,7 @@ const useCommunityData = () => {
     if (!user) {
       // open modal
       setAuthModalState({ open: true, view: "login" });
+      return;
     }
 
     if (isJoined) {
