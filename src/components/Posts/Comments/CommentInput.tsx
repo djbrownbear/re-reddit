@@ -1,23 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { User } from "firebase/auth";
 import AuthButtons from "@/components/Navbar.tsx/RightContent/AuthButtons";
 import { Flex, Textarea, Button, Text } from "@chakra-ui/react";
 
 type CommentInputProps = {
-  commentText: string;
-  setCommentText: (value: string) => void;
   user: User;
   createLoading: boolean;
   onCreateComment: (commentText: string) => void;
 };
 
 const CommentInput: React.FC<CommentInputProps> = ({
-  commentText,
-  setCommentText,
   user,
   createLoading,
   onCreateComment,
 }) => {
+  const [commentText, setCommentText] = useState("");
+
   return (
     <Flex direction="column" position="relative">
       {user ? (
@@ -57,7 +55,10 @@ const CommentInput: React.FC<CommentInputProps> = ({
               height="26px"
               disabled={!commentText.length}
               isLoading={createLoading}
-              onClick={() => onCreateComment(commentText)}
+              onClick={() => {
+                onCreateComment(commentText);
+                setCommentText("");
+              }}
             >
               Comment
             </Button>
