@@ -135,7 +135,11 @@ const CommentItem: React.FC<CommentItemProps> = ({
     const updateCommentAndNested = async (comment: Comment) => {
       const curID = comment.id ? comment.id : comment
       console.log(`loadingDeleteId: ${loadingDeleteId}, COMMENT: ${comment}, ID: ${curID}`);
-      const commentDocRef = doc(firestore, "comments", curID);
+      const commentDocRef = typeof curID === "string" ? doc(firestore, "comments", curID) : null;
+      if (!commentDocRef) {
+        console.log(`Invalid comment ID: ${curID}`);
+        return;
+      }
 
       // Check if the comment document exists before updating
       const commentSnapshot = await getDoc(commentDocRef);
@@ -147,10 +151,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
         creatorDisplayText: "[deleted]",
       });
 
-      // // Recursively update nested comments
-      // for (const nestedComment of childComments.comments!) {
-      //   await updateCommentAndNested(nestedComment);
-      // }
     } else {
       console.log(`comment document with ID ${comment.id} does not exist`);
     }};
@@ -160,10 +160,12 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
       // update post numberOfComments -1
       const postDocRef = doc(firestore, "posts", selectedPost?.id!);
+
+      if (selectedPost?.numberOfComments! > 0) {
       batch.update(postDocRef, {
         numberOfComments: increment(-1),
       });
-
+      }
       await batch.commit();
 
       // update client recoil state
@@ -171,7 +173,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
         ...prev,
         selectedPost: {
           ...prev.selectedPost,
-          numberOfComments: prev.selectedPost?.numberOfComments! - 1,
+          numberOfComments: prev.selectedPost?.numberOfComments! > 0 ? prev.selectedPost?.numberOfComments! - 1 : 0,
         } as Post,
       }));
     } catch (error) {
@@ -180,33 +182,18 @@ const CommentItem: React.FC<CommentItemProps> = ({
     setLoadingDeleteId("");
   };
 
-  // const getChildComments = async () => {
-  //   try {
-  //     const commentsQuery = query(
-  //       collection(firestore, "comments"),
-  //       where("parent", "==", parent),
-  //       orderBy("createdAt", "desc")
-  //     );
-  //     const commentDocs = await getDocs(commentsQuery);
-  //     const children = commentDocs.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-  //     setChildComments(children as Comment[]);
-  //   } catch (error) {
-  //     console.log("getPostComments error", error);
-  //   }
-  //   // setFetchLoading(false);
-  // };
-
   const getSelectedComment = async () => {
     const commentId = comment.id ? comment.id : comment;
     console.log(`commentId is ${commentId}`);
-    const commentDocRef = doc(firestore, "comments", commentId!);
+    const commentDocRef = typeof commentId === "string" ? doc(firestore, "comments", commentId) : null;
+      if (!commentDocRef) {
+        console.log(`Invalid comment ID: ${commentId}`);
+        return;
+      }
     const commentSnapshot = await getDoc(commentDocRef);
 
     if (commentSnapshot.exists()) {
-      setChildComments(commentSnapshot.data() as Comment);
+      setChildComments([commentSnapshot.data() as Comment]);
     }
   }
 
@@ -223,18 +210,18 @@ const CommentItem: React.FC<CommentItemProps> = ({
       </Box>
       <Stack spacing={1} width="100%">
         <Stack direction="row" align="center" fontSize="8pt">
-          <Text fontWeight={700}>{childComments?.creatorDisplayText}</Text>
+          <Text fontWeight={700}>{childComments[0]?.creatorDisplayText}</Text>
           <Text color="gray.600">
-            {moment(new Date(childComments?.createdAt?.seconds * 1000)).fromNow()}
+            {moment(new Date(childComments[0]?.createdAt?.seconds * 1000)).fromNow()}
           </Text>
           {loadingDelete && <Spinner size="sm" />}
         </Stack>
-        <Text fontSize="10pt">{childComments?.text}</Text>
+        <Text fontSize="10pt">{childComments[0]?.text}</Text>
         <Stack direction="row" align="center" cursor="pointer" color="gray.500">
           <Icon as={IoArrowUpCircleOutline} />
           <Icon as={IoArrowDownCircleOutline} />
           <Icon as={BiMessage} onClick={() => setIsReplying(!isReplying)} />
-          {userId === childComments?.creatorId && (
+          {userId === childComments[0]?.creatorId && (
             <>
               <Text fontSize="9pt" _hover={{ color: "blue.500" }}>
                 Edit
@@ -242,7 +229,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
               <Text
                 fontSize="9pt"
                 _hover={{ color: "blue.500" }}
-                onClick={() => onDeleteComment(childComments ? childComments : comment)}
+                onClick={() => onDeleteComment(childComments ? childComments[0] : comment)}
               >
                 Delete
               </Text>
@@ -299,7 +286,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 key={idx}
                 parentCommentRef={parentCommentRef}
                 comment={comment}
-                // onDeleteComment={onDeleteComment}
                 loadingDelete={loadingDelete}
                 userId={userId}
                 selectedPost={selectedPost}
