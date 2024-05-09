@@ -23,7 +23,7 @@
     "firebase-functions": "^4.4.1",
     "framer-motion": "^10.12.16",
     "moment": "^2.29.4",
-    "next": "13.4.6",
+    "next": ">=14.1.1",
     "postcss": "^8.4.31",
     "react": "18.2.0",
     "react-dom": "18.2.0",
