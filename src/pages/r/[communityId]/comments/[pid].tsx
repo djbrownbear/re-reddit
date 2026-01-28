@@ -9,7 +9,7 @@ import usePosts from "@/hooks/usePosts";
 import { User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 const PostPage: React.FC = () => {
@@ -19,7 +19,7 @@ const PostPage: React.FC = () => {
   const router = useRouter();
   const { communityStateValue } = useCommunityData();
 
-  const fetchPost = async (postId: string) => {
+  const fetchPost = useCallback(async (postId: string) => {
     try {
       const postDocRef = doc(firestore, "posts", postId);
       const postDoc = await getDoc(postDocRef);
@@ -28,9 +28,9 @@ const PostPage: React.FC = () => {
         selectedPost: { id: postDoc.id, ...postDoc.data() } as Post,
       }));
     } catch (error) {
-      console.log("fetchPost error", error);
+      // no-op
     }
-  };
+  }, [setPostStateValue]);
 
   useEffect(() => {
     const { pid } = router.query;
@@ -38,7 +38,7 @@ const PostPage: React.FC = () => {
     if (pid && !postStateValue.selectedPost) {
       fetchPost(pid as string);
     }
-  }, [router.query, postStateValue.selectedPost]);
+  }, [fetchPost, postStateValue.selectedPost, router.query]);
 
   return (
     <PageContent>

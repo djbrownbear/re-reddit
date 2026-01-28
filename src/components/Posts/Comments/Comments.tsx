@@ -8,7 +8,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { User } from "firebase/auth";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import CommentInput from "./CommentInput";
 import { firestore } from "@/firebase/clientApp";
 import {
@@ -87,20 +87,18 @@ const Comments: React.FC<CommentsProps> = ({
         } as Post,
       }));
     } catch (error) {
-      console.log("onCreateComment error", error);
+      // no-op
     }
     setCreateLoading(false);
   };
 
   const onDeleteComment = async (comment: Comment) => {
     setLoadingDeleteId(comment.id);
-    console.log("delete id: ", loadingDeleteId, comment?.id);
     try {
       const batch = writeBatch(firestore);
       
       // delete a comment document
       const commentDocRef = doc(firestore, "comments", comment?.id!);
-      console.log("commentDocRef: ", commentDocRef)
       batch.update(commentDocRef, {
         text: "deleted",
         creatorDisplayTexT: "[deleted]",
@@ -123,12 +121,13 @@ const Comments: React.FC<CommentsProps> = ({
         } as Post,
       }));
     } catch (error) {
-      console.log("onDeleteComment error", error);
+      // no-op
     }
     setLoadingDeleteId("");
   };
 
-  const getPostComments = async () => {
+  const getPostComments = useCallback(async () => {
+    if (!selectedPost?.id) return;
     try {
       const commentsQuery = query(
         collection(firestore, "comments"),
@@ -142,10 +141,10 @@ const Comments: React.FC<CommentsProps> = ({
       }));
       setComments(comments as Comment[]);
     } catch (error) {
-      console.log("getPostComments error", error);
+      // no-op
     }
     setFetchLoading(false);
-  };
+  }, [selectedPost?.id]);
 
   const getComments = async () => {
     try {
@@ -161,7 +160,7 @@ const Comments: React.FC<CommentsProps> = ({
       }));
       setComments(comments as Comment[]);
     } catch (error) {
-      console.log("getPostComments error", error);
+      // no-op
     }
     setFetchLoading(false);
   };
@@ -169,7 +168,7 @@ const Comments: React.FC<CommentsProps> = ({
   useEffect(() => {
     if (!selectedPost) return;
     getPostComments();
-  }, [selectedPost]);
+  }, [selectedPost, getPostComments]);
 
   return (
     <Box bg="white" borderRadius="0px 0px 4px 4px" p={1}>
@@ -230,7 +229,6 @@ const Comments: React.FC<CommentsProps> = ({
                     selectedPost={selectedPost}
                     user={user}
                   />)} else {
-                    console.log(`${comment.parent}`)
                   }
                 })}
             

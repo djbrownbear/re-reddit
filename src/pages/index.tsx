@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import PageContent from "@/components/Layout/PageContent";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, firestore } from "@/firebase/clientApp";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { communityState } from "@/atoms/communitiesAtom";
 import { useRecoilValue } from "recoil";
 import {
@@ -37,7 +37,27 @@ const Home: NextPage = () => {
   } = usePosts();
   const { communityStateValue } = useCommunityData();
 
-  const buildUserHomeFeed = async () => {
+  const buildNoUserHomeFeed = useCallback(async () => {
+    try {
+      const postQuery = query(
+        collection(firestore, "posts"),
+        orderBy("voteStatus", "desc"),
+        limit(10)
+      );
+
+      const postDocs = await getDocs(postQuery);
+      const posts = postDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setPostStateValue((prev) => ({
+        ...prev,
+        posts: posts as Post[],
+      }));
+      // setPostState
+    } catch (error) {
+      // no-op
+    }
+  }, [setPostStateValue]);
+
+  const buildUserHomeFeed = useCallback(async () => {
     // fetch some posts from each community that the user is in
     setLoading(true);
     try {
@@ -63,32 +83,12 @@ const Home: NextPage = () => {
         buildNoUserHomeFeed();
       }
     } catch (error) {
-      console.log("buildUserHomeFeed error", error);
+      // no-op
     }
     setLoading(false);
-  };
+  }, [buildNoUserHomeFeed, communityStateValue.mySnippets, setPostStateValue]);
 
-  const buildNoUserHomeFeed = async () => {
-    try {
-      const postQuery = query(
-        collection(firestore, "posts"),
-        orderBy("voteStatus", "desc"),
-        limit(10)
-      );
-
-      const postDocs = await getDocs(postQuery);
-      const posts = postDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setPostStateValue((prev) => ({
-        ...prev,
-        posts: posts as Post[],
-      }));
-      // setPostState
-    } catch (error) {
-      console.log("buildNoUserHomeFeed error", error);
-    }
-  };
-
-  const getUserPostVotes = async () => {
+  const getUserPostVotes = useCallback(async () => {
     try {
       const postIds = postStateValue.posts.map((post) => post.id);
       const postVotesQuery = query(
@@ -106,19 +106,19 @@ const Home: NextPage = () => {
         postVotes: postVotes as PostVote[],
       }));
     } catch (error) {
-      console.log("getUserPostVotes error", error);
+      // no-op
     }
-  };
+  }, [postStateValue.posts, setPostStateValue, user?.uid]);
 
   // useEffects
   useEffect(() => {
     if (communityStateValue.snippetsFetched) buildUserHomeFeed();
     buildUserHomeFeed();
-  }, [communityStateValue.snippetsFetched]);
+  }, [buildUserHomeFeed, communityStateValue.snippetsFetched]);
 
   useEffect(() => {
     if (!user && !loadingUser) buildNoUserHomeFeed();
-  }, [user, loadingUser]);
+  }, [buildNoUserHomeFeed, loadingUser, user]);
 
   useEffect(() => {
     if (user && postStateValue.posts.length) getUserPostVotes();
@@ -130,7 +130,7 @@ const Home: NextPage = () => {
         postVotes: [],
       }));
     };
-  }, [user, postStateValue.posts]);
+  }, [getUserPostVotes, postStateValue.posts, setPostStateValue, user]);
 
   return (
     <PageContent>

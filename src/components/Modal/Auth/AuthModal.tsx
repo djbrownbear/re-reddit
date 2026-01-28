@@ -10,7 +10,7 @@ import {
   useDisclosure,
   Text,
 } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import AuthInputs from "./AuthInputs";
 import OAuthButtons from "./OAuthButtons";
@@ -23,16 +23,16 @@ const AuthModal: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [user, loading, error] = useAuthState(auth);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setModalState((prev) => ({
       ...prev,
       open: false,
     }));
-  };
+  }, [setModalState]);
 
   useEffect(() => {
     if (user) handleClose();
-  }, [user]);
+  }, [user, handleClose]);
 
   const toggleView = (view: string) => {
     setModalState({

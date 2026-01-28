@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Timestamp, collection, doc, getDoc, getDocs, increment, orderBy, query, serverTimestamp, where, writeBatch } from "firebase/firestore";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FaReddit } from "react-icons/fa";
 import {
   IoArrowDownCircleOutline,
@@ -98,8 +98,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
         batch.update(parentCommentDocRef, {
           comments: [newComment.id, ...parentCommentSnapshot.data().comments],
         });
-      } else {
-        console.log("Parent comment document does not exist");
       }}
 
       // update post numberOfComments +1
@@ -121,7 +119,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
         } as Post,
       }));
     } catch (error) {
-      console.log("onCreateComment error", error);
+      // no-op
     }
     setCreateLoading(false);
   };
@@ -134,10 +132,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
     // Recursive function to update a comment and its nested comments as "deleted"
     const updateCommentAndNested = async (comment: Comment) => {
       const curID = comment.id ? comment.id : comment
-      console.log(`loadingDeleteId: ${loadingDeleteId}, COMMENT: ${comment}, ID: ${curID}`);
       const commentDocRef = typeof curID === "string" ? doc(firestore, "comments", curID) : null;
       if (!commentDocRef) {
-        console.log(`Invalid comment ID: ${curID}`);
         return;
       }
 
@@ -151,9 +147,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
         creatorDisplayText: "[deleted]",
       });
 
-    } else {
-      console.log(`comment document with ID ${comment.id} does not exist`);
-    }};
+    } };
       
     // Start the recursive update process
     await updateCommentAndNested(comment);
@@ -177,17 +171,15 @@ const CommentItem: React.FC<CommentItemProps> = ({
         } as Post,
       }));
     } catch (error) {
-      console.log("onDeleteComment error", error);
+      // no-op
     }
     setLoadingDeleteId("");
   };
 
-  const getSelectedComment = async () => {
+  const getSelectedComment = useCallback(async () => {
     const commentId = comment.id ? comment.id : comment;
-    console.log(`commentId is ${commentId}`);
     const commentDocRef = typeof commentId === "string" ? doc(firestore, "comments", commentId) : null;
       if (!commentDocRef) {
-        console.log(`Invalid comment ID: ${commentId}`);
         return;
       }
     const commentSnapshot = await getDoc(commentDocRef);
@@ -195,11 +187,11 @@ const CommentItem: React.FC<CommentItemProps> = ({
     if (commentSnapshot.exists()) {
       setChildComments([commentSnapshot.data() as Comment]);
     }
-  }
+  }, [comment]);
 
   useEffect(() => {
-    getSelectedComment()
-  }, [comment])
+    getSelectedComment();
+  }, [getSelectedComment]);
   
 
   return (

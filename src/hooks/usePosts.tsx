@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 
@@ -136,7 +136,7 @@ const usePosts = () => {
 
       await batch.commit();
     } catch (error: any) {
-      console.log("onVote error", error);
+      // no-op
     }
   };
 
@@ -171,7 +171,7 @@ const usePosts = () => {
     }
   };
 
-  const getCommunityPostVotes = async (communityId: string) => {
+  const getCommunityPostVotes = useCallback(async (communityId: string) => {
     const postVotesQuery = query(
       collection(firestore, "users", `${user?.uid}/postVotes`),
       where("communityId", "==", communityId)
@@ -186,12 +186,12 @@ const usePosts = () => {
       ...prev,
       postVotes: postVotes as PostVote[],
     }));
-  };
+  }, [setPostStateValue, user?.uid]);
 
   useEffect(() => {
     if (!user || !currentCommunity?.id) return;
     getCommunityPostVotes(currentCommunity?.id);
-  }, [user, currentCommunity]);
+  }, [currentCommunity?.id, getCommunityPostVotes, user]);
 
   useEffect(() => {
     if (!user) {
@@ -201,7 +201,7 @@ const usePosts = () => {
         postVotes: [],
       }));
     }
-  }, [user]);
+  }, [setPostStateValue, user]);
 
   return {
     postStateValue,

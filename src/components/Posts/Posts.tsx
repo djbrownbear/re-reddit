@@ -3,7 +3,7 @@ import { Post, PostVote } from "@/atoms/postsAtom";
 import { auth, firestore } from "@/firebase/clientApp";
 import usePosts from "@/hooks/usePosts";
 import { query, collection, where, orderBy, getDocs } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import PostItem from "./PostItem";
 import { Stack } from "@chakra-ui/react";
@@ -24,7 +24,7 @@ const Posts: React.FC<PostsProps> = ({ communityData }) => {
     onSelectPost,
   } = usePosts();
 
-  const getPosts = async () => {
+  const getPosts = useCallback(async () => {
     try {
       setLoading(true);
       // get posts for this community
@@ -42,16 +42,15 @@ const Posts: React.FC<PostsProps> = ({ communityData }) => {
         posts: posts as Post[],
       }));
 
-      console.log("posts", posts);
     } catch (error: any) {
-      console.log("getPosts error", error.message);
+      // no-op
     }
     setLoading(false);
-  };
+  }, [communityData.id, setPostStateValue]);
 
   useEffect(() => {
     getPosts();
-  }, [communityData]);
+  }, [getPosts]);
 
   return (
     <>

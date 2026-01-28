@@ -10,8 +10,6 @@ import { useAuthState } from "react-firebase-hooks/auth";
 const SubmitPostPage: React.FC = () => {
   const [user] = useAuthState(auth);
   const { communityStateValue } = useCommunityData();
-  console.log("COMMUNITY", communityStateValue);
-
   return (
     <PageContent>
       <>

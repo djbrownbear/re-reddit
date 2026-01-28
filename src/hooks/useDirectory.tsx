@@ -14,9 +14,9 @@ const useDirectory = () => {
     useRecoilState(directoryMenuState);
   const router = useRouter();
   const communityStateValue = useRecoilValue(communityState);
+  const { currentCommunity } = communityStateValue;
 
   const onSelectMenuItem = (menuItem: DirectoryMenuItem) => {
-    console.log("onSelectMenuItem", menuItem, directoryState)
     setDirectoryState((prev) => ({
       ...prev,
       selectedMenuItem: menuItem,
@@ -35,8 +35,6 @@ const useDirectory = () => {
   };
 
   useEffect(() => {
-    const { currentCommunity } = communityStateValue;
-
     if (currentCommunity) {
       setDirectoryState((prev) => ({
         ...prev,
@@ -50,7 +48,7 @@ const useDirectory = () => {
       }));
       return;
     }
-  }, [communityStateValue.currentCommunity]);
+  }, [currentCommunity, setDirectoryState]);
 
   return { directoryState, toggleMenuOpen, onSelectMenuItem };
 };

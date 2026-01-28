@@ -37,7 +37,7 @@ const Recommendations: React.FC = () => {
       }));
       setCommunities(communities as Community[]);
     } catch (error) {
-      console.log("getCommunityRecommendations error", error);
+      // no-op
     }
     setLoading(false);
   };

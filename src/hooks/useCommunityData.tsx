@@ -14,7 +14,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
@@ -44,7 +44,7 @@ const useCommunityData = () => {
     joinCommunity(communityData);
   };
 
-  const getMySnippets = async () => {
+  const getMySnippets = useCallback(async () => {
     setLoading(true);
     try {
       setError("");
@@ -59,11 +59,10 @@ const useCommunityData = () => {
         snippetsFetched: true,
       }));
     } catch (error: any) {
-      console.log("getMySnippets error", error);
       setError(error.message);
     }
     setLoading(false);
-  };
+  }, [setCommunityStateValue, user?.uid]);
 
   const joinCommunity = async (communityData: Community) => {
     // batch write
@@ -99,7 +98,6 @@ const useCommunityData = () => {
         mySnippets: [...prev.mySnippets, newSnippet],
       }));
     } catch (error: any) {
-      console.log("joinCommunity error", error);
       setError(error.message);
     }
     setLoading(false);
@@ -131,13 +129,12 @@ const useCommunityData = () => {
         ),
       }));
     } catch (error: any) {
-      console.log("leaveCommunity error", error);
       setError(error.message);
     }
     setLoading(false);
   };
 
-  const getCommunityData = async (communityId: string) => {
+  const getCommunityData = useCallback(async (communityId: string) => {
     try {
       const communityDocRef = doc(firestore, "communities", communityId);
       const communityDoc = await getDoc(communityDocRef);
@@ -150,9 +147,9 @@ const useCommunityData = () => {
         } as Community,
       }));
     } catch (error) {
-      console.log("getCommunityData", error);
+      // no-op
     }
-  };
+  }, [setCommunityStateValue]);
 
   useEffect(() => {
     if (!user) {
@@ -164,7 +161,7 @@ const useCommunityData = () => {
       return;
     }
     getMySnippets();
-  }, [user]);
+  }, [getMySnippets, setCommunityStateValue, user]);
 
   useEffect(() => {
     const { communityId } = router.query;
@@ -172,7 +169,7 @@ const useCommunityData = () => {
     if (communityId && !communityStateValue.currentCommunity) {
       getCommunityData(communityId as string);
     }
-  }, [router.query, communityStateValue.currentCommunity]);
+  }, [communityStateValue.currentCommunity, getCommunityData, router.query]);
 
   return {
     // data and functions
